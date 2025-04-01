@@ -1,4 +1,4 @@
-/* 此程式為 Gemini 2.5 Pro 生成 */
+/* 此程式為 Gemini 2.5 Pro 生成，並加入多語言支援 */
 
 (() => {
   // 獲取顯示倒數計時的 HTML 元素
@@ -7,6 +7,57 @@
   const jstTimeZone = 'Asia/Tokyo'
   // JST 與 UTC 的時差（毫秒），用於計算目標時間戳
   const jstOffset = 9 * 60 * 60 * 1000 // 9 小時
+
+  // --- 多語言翻譯定義 ---
+  const translations = {
+    'zh-TW': {
+      countdownPrefix: '誕生日還有',
+      weeks: '週',
+      days: '天',
+      hours: '時',
+      minutes: '分',
+      seconds: '秒',
+      birthdayMessage: '✨ 今天是高橋李依誕生日 ✨',
+      errorMessage: '無法計算倒數'
+    },
+    'ja': {
+      countdownPrefix: '誕生日まであと',
+      weeks: '週間',
+      days: '日',
+      hours: '時間',
+      minutes: '分',
+      seconds: '秒',
+      birthdayMessage: '✨ 今日は高橋李依さんの誕生日です ✨',
+      errorMessage: 'カウントダウンを計算できません'
+    },
+    'en': { // 預設/備援語言
+      countdownPrefix: 'Birthday in',
+      weeks: 'weeks',
+      days: 'days',
+      hours: 'hours',
+      minutes: 'minutes',
+      seconds: 'seconds',
+      birthdayMessage: '✨ Today is Rie Takahashi\'s Birthday ✨',
+      errorMessage: 'Cannot calculate countdown'
+    }
+    // 可以繼續添加其他語言, 例如 'zh-CN'
+  }
+
+  // --- 選擇語言 ---
+  let currentLang = 'en' // 預設為英文
+  const browserLang = navigator.language // e.g., 'zh-TW'
+  const baseLang = browserLang.split('-')[0] // e.g., 'zh'
+
+  if (translations[browserLang]) {
+    currentLang = browserLang
+  } else if (translations[baseLang]) {
+    // 如果找不到精確匹配 (例如 'en-US')，嘗試基礎語言 (例如 'en')
+    currentLang = baseLang
+  }
+  // 取得選定語言的翻譯物件
+  const t = translations[currentLang]
+
+  // --- (其餘程式碼不變) ---
 
   // 創建一個 Intl.DateTimeFormat 實例來獲取 JST 的日期部分
   const jstDateFormatter = new Intl.DateTimeFormat('en-US', {
@@ -40,8 +91,8 @@
       const isBirthdayToday = (currentJstMonth === 2 && currentJstDay === 27)
 
       if (isBirthdayToday) {
-        // 如果是生日當天，顯示祝福語 (使用淺色文字，維持單行)
-        countdownElement.textContent = '✨ 今天是高橋李依誕生日 ✨' // 使用 textContent 維持單行
+        // 如果是生日當天，顯示祝福語 (使用選定的語言)
+        countdownElement.textContent = t.birthdayMessage // 使用翻譯
         countdownElement.classList.add('has-text-light') // 確保生日文字也是淺色
         // 不需要再計算倒數或請求下一幀，循環會自然停止
         return true // 返回 true 表示已完成
@@ -71,12 +122,13 @@
       const days = totalDays % 7
       const weeks = Math.floor(totalDays / 7)
 
-      // 更新頁面上的倒數計時顯示
-      countdownElement.innerHTML = `誕生日還有 ${weeks} 週 ${days} 天 ${hours} 時 ${minutes} 分 ${seconds} 秒`
+      // 更新頁面上的倒數計時顯示 (使用選定的語言)
+      // 使用 textContent 因為我們不需要插入 HTML 標籤
+      countdownElement.textContent = `${t.countdownPrefix} ${weeks} ${t.weeks} ${days} ${t.days} ${hours} ${t.hours} ${minutes} ${t.minutes} ${seconds} ${t.seconds}`
       return false // 返回 false 表示倒數仍在進行
     } catch (error) {
       console.error('計算倒數時發生錯誤:', error)
-      countdownElement.textContent = '無法計算倒數' // 錯誤訊息使用 textContent
+      countdownElement.textContent = t.errorMessage // 使用翻譯
       countdownElement.classList.add('has-text-danger') // 錯誤訊息使用 Bulma 的危險色
       return true // 發生錯誤，也停止循環
     }
@@ -113,7 +165,7 @@
   updateCountdownDisplay()
 
   // 啟動 requestAnimationFrame 循環 (如果尚未到生日)
-  if (countdownElement.textContent !== '✨ 今天是高橋李依誕生日 ✨') {
+  if (countdownElement.textContent !== t.birthdayMessage) { // 使用翻譯後的生日訊息來判斷
     animationFrameId = window.requestAnimationFrame(animationLoop)
   }
 })()
