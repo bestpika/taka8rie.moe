@@ -117,15 +117,8 @@
 
         // 不需要再計算倒數或請求下一幀，循環會自然停止
         return true // 返回 true 表示已完成
-      } else {
-        // 過了生日
-        if ([...countdownElement.classList].includes(textLightClass)) {
-          countdownElement.classList.remove(textLightClass)
-        }
-        if (fireworksStarted) {
-          fireworksInstance.clear()
-          fireworksStarted = false
-        }
+      } else if (fireworksStarted) {
+        location.reload() // 過了生日就重整網頁
       }
 
       // --- 計算下一個生日的目標日期 ---
@@ -167,7 +160,6 @@
   // requestAnimationFrame 的循環函數
   function animationLoop (currentTime) {
     // currentTime 是由 requestAnimationFrame 自動傳入的高精度時間戳
-
     if (!lastUpdateTime) {
       lastUpdateTime = currentTime
     }
