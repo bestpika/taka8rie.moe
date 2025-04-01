@@ -1,4 +1,4 @@
-/* 此程式為 Gemini 2.5 Pro 生成，並加入多語言支援 */
+/* 此程式為 Gemini 2.5 Pro 生成，並加入多語言支援與測試模式 */
 
 (() => {
   // 獲取顯示倒數計時的 HTML 元素
@@ -7,6 +7,10 @@
   const jstTimeZone = 'Asia/Tokyo'
   // JST 與 UTC 的時差（毫秒），用於計算目標時間戳
   const jstOffset = 9 * 60 * 60 * 1000 // 9 小時
+
+  // --- 讀取 URL 參數以啟用測試模式 ---
+  const urlParams = new URLSearchParams(window.location.search)
+  const isTestToday = urlParams.get('today') === 'true' // 檢查 ?today=true 是否存在
 
   // --- 多語言翻譯定義 ---
   const translations = {
@@ -90,8 +94,9 @@
       // 檢查今天是否是 2 月 27 日 (在日本時區)
       const isBirthdayToday = (currentJstMonth === 2 && currentJstDay === 27)
 
-      if (isBirthdayToday) {
-        // 如果是生日當天，顯示祝福語 (使用選定的語言)
+      // --- 修改判斷條件：加入 isTestToday 測試模式 ---
+      if (isBirthdayToday || isTestToday) {
+        // 如果是生日當天，或啟用了測試模式，顯示祝福語 (使用選定的語言)
         countdownElement.textContent = t.birthdayMessage // 使用翻譯
         countdownElement.classList.add('has-text-light') // 確保生日文字也是淺色
         // 不需要再計算倒數或請求下一幀，循環會自然停止
@@ -164,8 +169,9 @@
   // 立即執行一次以顯示初始值 (避免顯示"計算中...")
   updateCountdownDisplay()
 
-  // 啟動 requestAnimationFrame 循環 (如果尚未到生日)
-  if (countdownElement.textContent !== t.birthdayMessage) { // 使用翻譯後的生日訊息來判斷
+  // 啟動 requestAnimationFrame 循環 (如果尚未到生日或測試模式未啟用)
+  // 檢查 updateCountdownDisplay 的初始執行結果是否已顯示生日訊息
+  if (countdownElement.textContent !== t.birthdayMessage) {
     animationFrameId = window.requestAnimationFrame(animationLoop)
   }
 })()
