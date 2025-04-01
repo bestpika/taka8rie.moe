@@ -1,8 +1,10 @@
-/* 此程式為 Gemini 2.5 Pro 生成，並加入多語言支援與測試模式 */
+/* 此程式為 Gemini 2.5 Pro 生成，並加入多語言支援、測試模式與煙火特效 */
 
 (() => {
   // 獲取顯示倒數計時的 HTML 元素
   const countdownElement = document.getElementById('countdown')
+  // 獲取煙火容器元素
+  const fireworksContainer = document.getElementById('fireworks-container')
   // 日本標準時間 (JST) 的 IANA 時區標識符
   const jstTimeZone = 'Asia/Tokyo'
   // JST 與 UTC 的時差（毫秒），用於計算目標時間戳
@@ -11,6 +13,10 @@
   // --- 讀取 URL 參數以啟用測試模式 ---
   const urlParams = new URLSearchParams(window.location.search)
   const isTestToday = urlParams.get('today') === 'true' // 檢查 ?today=true 是否存在
+
+  // --- 煙火相關 ---
+  let fireworksInstance = null // 保存煙火實例
+  let fireworksStarted = false // 標記煙火是否已啟動
 
   // --- 多語言翻譯定義 ---
   const translations = {
@@ -95,12 +101,31 @@
       const isBirthdayToday = (currentJstMonth === 2 && currentJstDay === 27)
 
       // --- 修改判斷條件：加入 isTestToday 測試模式 ---
+      const textLightClass = 'has-text-light'
       if (isBirthdayToday || isTestToday) {
         // 如果是生日當天，或啟用了測試模式，顯示祝福語 (使用選定的語言)
         countdownElement.textContent = t.birthdayMessage // 使用翻譯
-        countdownElement.classList.add('has-text-light') // 確保生日文字也是淺色
+        countdownElement.classList.add(textLightClass) // 確保生日文字也是淺色
+
+        // --- 啟動煙火 ---
+        if (!fireworksStarted && fireworksContainer) {
+          console.log('Starting fireworks...') // 除錯訊息
+          fireworksInstance = new Fireworks.default(fireworksContainer)
+          fireworksInstance.start()
+          fireworksStarted = true // 標記已啟動
+        }
+
         // 不需要再計算倒數或請求下一幀，循環會自然停止
         return true // 返回 true 表示已完成
+      } else {
+        // 過了生日
+        if ([...countdownElement.classList].includes(textLightClass)) {
+          countdownElement.classList.remove(textLightClass)
+        }
+        if (fireworksStarted) {
+          fireworksInstance.clear()
+          fireworksStarted = false
+        }
       }
 
       // --- 計算下一個生日的目標日期 ---
@@ -166,7 +191,8 @@
   }
 
   // --- 初始化 ---
-  // 立即執行一次以顯示初始值 (避免顯示"計算中...")
+  // 立即執行一次以顯示初始值 (避免顯示'計算中...')
+  // 這次呼叫也可能觸發煙火 (如果 isTestToday=true 或剛好是生日)
   updateCountdownDisplay()
 
   // 啟動 requestAnimationFrame 循環 (如果尚未到生日或測試模式未啟用)

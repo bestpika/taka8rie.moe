@@ -10,17 +10,31 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Iansui&display=swap">
+    <!-- 煙火特效用 -->
+    <script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.x/dist/index.umd.js" defer></script>
     <style>
       /* 芫荽 */
       html,
       body,
-      .title {
+      .title,
+      .subtitle {
+        /* 套用到 title 和 subtitle */
         font-family: 'Iansui', sans-serif;
       }
 
       html,
       body {
         overflow: hidden;
+      }
+
+      #fireworks-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+        pointer-events: none;
       }
 
     </style>
@@ -35,6 +49,7 @@
         </div>
       </div>
     </section>
+    <div id="fireworks-container"></div>
     <script src="./taka8rie.js" defer></script>
   </body>
 
